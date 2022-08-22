@@ -1,11 +1,13 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "expo-status-bar";
 
-import LoginScreen from './screens/LoginScreen';
-import SignupScreen from './screens/SignupScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
-import { Colors } from './constants/styles';
+import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
+import WelcomeScreen from "./screens/WelcomeScreen";
+import IconButton from "./components/ui/IconButton";
+import { Colors } from "./constants/styles";
+import AuthProvider, { useAuth } from "./store/auth-contex";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +16,7 @@ function AuthStack() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: Colors.primary500 },
-        headerTintColor: 'white',
+        headerTintColor: "white",
         contentStyle: { backgroundColor: Colors.primary100 },
       }}
     >
@@ -25,12 +27,21 @@ function AuthStack() {
 }
 
 function AuthenticatedStack() {
+  const { logout } = useAuth();
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: Colors.primary500 },
-        headerTintColor: 'white',
+        headerTintColor: "white",
         contentStyle: { backgroundColor: Colors.primary100 },
+        headerRight: () => (
+          <IconButton
+            size={24}
+            icon="exit"
+            color={headerTintColor}
+            onPress={logout}
+          />
+        ),
       }}
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -39,9 +50,11 @@ function AuthenticatedStack() {
 }
 
 function Navigation() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <NavigationContainer>
-      <AuthStack />
+      {isAuthenticated ? <AuthenticatedStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
@@ -51,7 +64,9 @@ export default function App() {
     <>
       <StatusBar style="light" />
 
-      <Navigation />
+      <AuthProvider>
+        <Navigation />
+      </AuthProvider>
     </>
   );
 }
