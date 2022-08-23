@@ -8,6 +8,7 @@ import WelcomeScreen from "./screens/WelcomeScreen";
 import IconButton from "./components/ui/IconButton";
 import { Colors } from "./constants/styles";
 import AuthProvider, { useAuth } from "./store/auth-contex";
+import { useState } from "react";
 
 const Stack = createNativeStackNavigator();
 
@@ -59,13 +60,27 @@ function Navigation() {
   );
 }
 
+function Root() {
+  const [isTryingLogin, setIsTryingLogin] = useState(true);
+  const { authenticate } = useAuth();
+
+  useEffect(() => {
+    AsyncStorage.getItem("authToken").then((token) => {
+      token && authenticate(token);
+      setIsTryingLogin(false);
+    });
+  }); 
+
+  return <Navigation />;
+}
+
 export default function App() {
   return (
     <>
       <StatusBar style="light" />
 
       <AuthProvider>
-        <Navigation />
+        <Root />
       </AuthProvider>
     </>
   );
